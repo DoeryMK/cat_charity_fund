@@ -1,20 +1,20 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator, Extra
 
+from app.core.consts import (
+    PROJECT_NAME_CANT_BE_NONE, FULL_AMOUNT_MIN,
+    FULL_AMOUNT_LESS_THAN_MIN
+)
 
 class CharityProjectBase(BaseModel):
-    name: Optional[str] = Field(
-        ...,
-        min_length=1,
-        max_length=100,
-    )
+    name: Optional[str]
     description: Optional[str]
-    full_amount: Optional[int] = Field(
-        ...,
-        min=1,
-    )
+    full_amount: Optional[int]
+
+    class Config:
+        extra = Extra.forbid
 
 
 class CharityProjectCreate(CharityProjectBase):
@@ -26,8 +26,27 @@ class CharityProjectCreate(CharityProjectBase):
     description: str
     full_amount: int = Field(
         ...,
-        min=1,
+        ge=1,
     )
+
+
+class CharityProjectUpdate(CharityProjectBase):
+
+    @validator('name')
+    def name_cant_be_None(cls, value: str):
+        if value is None:
+            raise ValueError(
+                PROJECT_NAME_CANT_BE_NONE
+            )
+        return value
+
+    @validator('full_amount')
+    def full_amount_must_be_greater_than_zero(cls, value: str):
+        if value < FULL_AMOUNT_MIN:
+            raise ValueError(
+                FULL_AMOUNT_LESS_THAN_MIN
+            )
+        return value
 
 
 class CharityProjectDB(CharityProjectCreate):

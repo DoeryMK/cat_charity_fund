@@ -10,12 +10,11 @@ from app.models import User
 
 ModelType = TypeVar('ModelType', bound=Base)
 CreateSchemaType = TypeVar('CreateSchemaType', bound=BaseModel)
-UpdateSchemaType = TypeVar('UpdateSchemaType', bound=BaseModel)
 
 
 class CRUDBase(
     Generic[
-        ModelType, CreateSchemaType, UpdateSchemaType
+        ModelType, CreateSchemaType
     ]
 ):
 
@@ -25,17 +24,41 @@ class CRUDBase(
     ):
         self.model = model
 
+    async def get(
+            self,
+            obj_id: int,
+            session: AsyncSession,
+    ) -> Optional[ModelType]:
+        db_obj = await session.execute(
+            select(self.model).where(
+                self.model.id == obj_id
+            )
+        )
+        return db_obj.scalars().first()
+
+    async def get_by_attribute(
+            self,
+            attr_name: str,
+            attr_value: str,
+            session: AsyncSession,
+    ):
+        attr = getattr(self.model, attr_name)
+        db_obj = await session.execute(
+            select(self.model).where(attr == attr_value)
+        )
+        return db_obj.scalars().first()
+
     async def get_multi(
             self,
             session: AsyncSession,
-            user: Optional[User] = None,
+            # user: Optional[User] = None,
     ) -> List[ModelType]:
-        if user:
-            db_objs = await session.execute(
-                select(self.model).where(self.model.user_id == user.id)
-            )
-        else:
-            db_objs = await session.execute(select(self.model))
+        # if user:
+        #     db_objs = await session.execute(
+        #         select(self.model).where(self.model.user_id == user.id)
+        #     )
+        # else:
+        db_objs = await session.execute(select(self.model))
         return db_objs.scalars().all()
 
     async def create(
