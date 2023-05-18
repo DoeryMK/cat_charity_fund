@@ -51,14 +51,14 @@ class CRUDBase(
     async def get_multi(
             self,
             session: AsyncSession,
-            # user: Optional[User] = None,
+            user: Optional[User] = None,
     ) -> List[ModelType]:
-        # if user:
-        #     db_objs = await session.execute(
-        #         select(self.model).where(self.model.user_id == user.id)
-        #     )
-        # else:
-        db_objs = await session.execute(select(self.model))
+        if user:
+            db_objs = await session.execute(
+                select(self.model).where(self.model.user_id == user.id)
+            )
+        else:
+            db_objs = await session.execute(select(self.model))
         return db_objs.scalars().all()
 
     async def create(
