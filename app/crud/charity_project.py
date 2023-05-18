@@ -45,5 +45,14 @@ class CRUDCharityProject(
         await session.refresh(db_project)
         return db_project
 
+    async def delete(
+            self,
+            db_project: CharityProject,
+            session: AsyncSession,
+    ) -> CharityProject:
+        await session.delete(db_project)
+        await session.commit()
+        return db_project
+
 
 charity_project_crud = CRUDCharityProject(CharityProject)

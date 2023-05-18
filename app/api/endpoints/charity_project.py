@@ -4,7 +4,8 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.validators import (
-    check_project_name_duplicate, check_project_before_edit
+    check_project_name_duplicate, check_project_before_edit,
+    check_project_before_delete
 )
 from app.core.db import get_async_session
 from app.core.user import current_superuser
@@ -70,3 +71,22 @@ async def get_all_charity_projects(
     all_charity_projects = await charity_project_crud.get_multi(session)
     return all_charity_projects
 
+
+@router.delete(
+    '/{project_id}',
+    response_model=CharityProjectDB,
+    response_model_exclude_none=True,
+    dependencies=[Depends(current_superuser)],
+)
+async def delete_charity_project(
+        project_id: int,
+        session: AsyncSession = Depends(get_async_session),
+):
+    """Только для суперюзеров."""
+    charity_project = await check_project_before_delete(
+        project_id, session
+    )
+    charity_project = await charity_project_crud.delete(
+        charity_project, session
+    )
+    return charity_project

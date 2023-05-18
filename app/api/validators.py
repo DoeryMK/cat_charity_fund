@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.consts import (
     PROJECT_NAME_OCCUPIED, DUPLICATE_VALIDATION_ATTRIBUTE,
     PROJECT_NOT_FOUND, PROJECT_CLOSED,
-    FULL_AMOUNT_INVALID
+    FULL_AMOUNT_INVALID, PROJECT_CANT_BE_DELETED
 )
 from app.crud.charity_project import charity_project_crud
 from app.models import CharityProject
@@ -76,3 +76,16 @@ async def check_project_before_edit(
     return charity_project
 
 
+async def check_project_before_delete(
+        project_id: int,
+        session: AsyncSession
+) -> CharityProject:
+    charity_project = await check_project_exists(
+        project_id, session
+    )
+    if charity_project.invested_amount:
+        raise HTTPException(
+            status_code=422,
+            detail=PROJECT_CANT_BE_DELETED,
+        )
+    return charity_project

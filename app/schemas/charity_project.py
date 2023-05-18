@@ -8,6 +8,7 @@ from app.core.consts import (
     FULL_AMOUNT_LESS_THAN_MIN
 )
 
+
 class CharityProjectBase(BaseModel):
     name: Optional[str]
     description: Optional[str]
@@ -33,15 +34,23 @@ class CharityProjectCreate(CharityProjectBase):
 class CharityProjectUpdate(CharityProjectBase):
 
     @validator('name')
-    def name_cant_be_None(cls, value: str):
+    def name_cant_be_none(
+            cls,
+            value: str
+    ):
         if value is None:
             raise ValueError(
                 PROJECT_NAME_CANT_BE_NONE
             )
         return value
 
+    # TO DO: Валидацию для целых чисел больше нуля можно не писать:
+    # посмотреть в документации pydantic
     @validator('full_amount')
-    def full_amount_must_be_greater_than_zero(cls, value: str):
+    def full_amount_must_be_greater_than_zero(
+            cls,
+            value: str
+    ):
         if value < FULL_AMOUNT_MIN:
             raise ValueError(
                 FULL_AMOUNT_LESS_THAN_MIN

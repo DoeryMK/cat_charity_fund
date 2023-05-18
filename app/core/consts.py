@@ -5,6 +5,10 @@ PROJECT_NAME_LENGTH = 100
 DUPLICATE_VALIDATION_ATTRIBUTE = 'name'
 
 PROJECT_CLOSED = 'Закрытый проект нельзя редактировать!'
+PROJECT_CANT_BE_DELETED = (
+    'Нельзя удалить проект, в который уже были '
+    'инвестированы средства, его можно только закрыть.'
+)
 PROJECT_NAME_CANT_BE_NONE = 'Имя проекта не может быть None'
 PROJECT_NAME_OCCUPIED = 'Проект с таким именем уже существует!'
 PROJECT_NOT_FOUND = 'Проект не найден!'
