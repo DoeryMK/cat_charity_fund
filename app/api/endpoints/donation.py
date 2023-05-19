@@ -5,11 +5,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_async_session
 from app.core.user import current_user, current_superuser
+from app.crud.charity_project import charity_project_crud
 from app.crud.donation import donation_crud
 from app.models import User
 from app.schemas.donation import (
     DonationShortDB, DonationCreate, DonationFullDB
 )
+from app.services.investing import investing_process
 
 router = APIRouter()
 
@@ -27,9 +29,12 @@ async def create_new_donation(
     new_donation = await donation_crud.create(
         donation, session, user
     )
+    new_donation = await investing_process(
+        new_donation, charity_project_crud, session
+    )
     return new_donation
 
-# TO DO: show close_date when all money will be run out
+
 @router.get(
     '/',
     response_model=List[DonationFullDB],

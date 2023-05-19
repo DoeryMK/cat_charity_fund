@@ -1,7 +1,7 @@
 from typing import Generic, List, Optional, Type, TypeVar
 
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import select, asc
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import Base
@@ -30,11 +30,28 @@ class CRUDBase(
             session: AsyncSession,
     ) -> Optional[ModelType]:
         db_obj = await session.execute(
-            select(self.model).where(
+            select(
+                self.model
+            ).where(
                 self.model.id == obj_id
             )
         )
         return db_obj.scalars().first()
+
+    async def get_first_created(
+            self,
+            session: AsyncSession,
+    ) -> Optional[ModelType]:
+        project = await session.execute(
+            select(
+                self.model
+            ).where(
+                self.model.fully_invested == 0
+            ).order_by(
+                asc(self.model.create_date)
+            )
+        )
+        return project.scalars().first()
 
     async def get_by_attribute(
             self,
@@ -44,7 +61,11 @@ class CRUDBase(
     ):
         attr = getattr(self.model, attr_name)
         db_obj = await session.execute(
-            select(self.model).where(attr == attr_value)
+            select(
+                self.model
+            ).where(
+                attr == attr_value
+            )
         )
         return db_obj.scalars().first()
 
@@ -55,7 +76,11 @@ class CRUDBase(
     ) -> List[ModelType]:
         if user:
             db_objs = await session.execute(
-                select(self.model).where(self.model.user_id == user.id)
+                select(
+                    self.model
+                ).where(
+                    self.model.user_id == user.id
+                )
             )
         else:
             db_objs = await session.execute(select(self.model))

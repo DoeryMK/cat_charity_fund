@@ -10,10 +10,12 @@ from app.api.validators import (
 from app.core.db import get_async_session
 from app.core.user import current_superuser
 from app.crud.charity_project import charity_project_crud
+from app.crud.donation import donation_crud
 from app.schemas.charity_project import (
     CharityProjectDB, CharityProjectCreate,
     CharityProjectUpdate
 )
+from app.services.investing import investing_process
 
 router = APIRouter()
 
@@ -35,13 +37,15 @@ async def create_new_charity_project(
     new_charity_project = await charity_project_crud.create(
         charity_project, session
     )
+    new_charity_project = await investing_process(
+        new_charity_project, donation_crud, session
+    )
     return new_charity_project
 
 
 @router.patch(
     '/{project_id}',
     response_model=CharityProjectDB,
-    # response_model_exclude_none=True,
     dependencies=[Depends(current_superuser)],
 )
 async def partially_update_charity_project(
@@ -75,7 +79,6 @@ async def get_all_charity_projects(
 @router.delete(
     '/{project_id}',
     response_model=CharityProjectDB,
-    # response_model_exclude_none=True,
     dependencies=[Depends(current_superuser)],
 )
 async def delete_charity_project(
