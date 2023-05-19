@@ -1,5 +1,4 @@
 from fastapi.encoders import jsonable_encoder
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.base import CRUDBase
@@ -14,20 +13,6 @@ class CRUDCharityProject(
         CharityProject, CharityProjectCreate
     ]
 ):
-
-    async def get_by_name(
-            self,
-            project_id: int,
-            project_name: str,
-            session: AsyncSession
-    ) -> CharityProject:
-        projects = await session.execute(
-            select(CharityProject).where(
-                CharityProject.name == project_name,
-                CharityProject.id != project_id
-            )
-        )
-        return projects.scalars().first()
 
     async def update(
             self,

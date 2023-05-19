@@ -1,5 +1,3 @@
-from typing import Optional
-
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -16,19 +14,13 @@ from app.schemas.charity_project import CharityProjectUpdate
 async def check_project_name_duplicate(
         project_name: str,
         session: AsyncSession,
-        project_id: Optional[int] = None,
 ) -> None:
-    if project_id:
-        project = await charity_project_crud.get_by_name(
-            project_id, project_name, session
-        )
-    else:
-        project = await charity_project_crud.get_by_attribute(
-            DUPLICATE_VALIDATION_ATTRIBUTE, project_name, session
-        )
+    project = await charity_project_crud.get_by_attribute(
+        DUPLICATE_VALIDATION_ATTRIBUTE, project_name, session
+    )
     if project:
         raise HTTPException(
-            status_code=422,
+            status_code=400,
             detail=PROJECT_NAME_OCCUPIED,
         )
 
@@ -58,7 +50,7 @@ async def check_project_before_edit(
     )
     if charity_project.fully_invested:
         raise HTTPException(
-            status_code=422,
+            status_code=400,
             detail=PROJECT_CLOSED,
         )
     if (
@@ -66,12 +58,12 @@ async def check_project_before_edit(
             object_in.full_amount < charity_project.invested_amount
     ):
         raise HTTPException(
-            status_code=422,
+            status_code=400,
             detail=FULL_AMOUNT_INVALID,
         )
     if object_in.name:
         await check_project_name_duplicate(
-            object_in.name, session, project_id
+            object_in.name, session
         )
     return charity_project
 
@@ -85,7 +77,12 @@ async def check_project_before_delete(
     )
     if charity_project.invested_amount:
         raise HTTPException(
-            status_code=422,
+            status_code=400,
+            detail=PROJECT_CANT_BE_DELETED,
+        )
+    if charity_project.fully_invested:
+        raise HTTPException(
+            status_code=400,
             detail=PROJECT_CANT_BE_DELETED,
         )
     return charity_project
