@@ -1,11 +1,11 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, Extra, Field, root_validator, validator
+from pydantic import BaseModel, Extra, Field, validator
 
 from app.core.consts import (
     FULL_AMOUNT_LESS_THAN_MIN, FULL_AMOUNT_MIN,
-    PROJECT_FIELDS_CANT_BE_EMPTY, PROJECT_NAME_CANT_BE_NONE
+    PROJECT_NAME_CANT_BE_NONE
 )
 
 
@@ -16,18 +16,15 @@ class CharityProjectBase(BaseModel):
 
     class Config:
         extra = Extra.forbid
+        min_anystr_length = 1
 
 
 class CharityProjectCreate(CharityProjectBase):
     name: str = Field(
         ...,
-        min_length=1,
         max_length=100,
     )
-    description: str = Field(
-        ...,
-        min_length=1,
-    )
+    description: str
     full_amount: int = Field(
         ...,
         ge=1,
@@ -43,15 +40,6 @@ class CharityProjectCreate(CharityProjectBase):
 
 
 class CharityProjectUpdate(CharityProjectBase):
-
-    @root_validator(skip_on_failure=True)
-    def value_cant_be_empty(cls, values):
-        for _, value in values.items():
-            if value == "":
-                raise ValueError(
-                    PROJECT_FIELDS_CANT_BE_EMPTY
-                )
-        return values
 
     @validator('full_amount')
     def full_amount_must_be_greater_than_zero(cls, value: str):
