@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Column, Integer, Boolean, DateTime
+from sqlalchemy import Boolean, Column, DateTime, Integer
 
 from app.core.consts import INVESTED_AMOUNT_DEFAULT
 from app.core.db import Base

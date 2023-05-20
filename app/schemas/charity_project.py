@@ -1,11 +1,11 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, Field, validator, Extra, root_validator
+from pydantic import BaseModel, Extra, Field, root_validator, validator
 
 from app.core.consts import (
-    PROJECT_NAME_CANT_BE_NONE, FULL_AMOUNT_MIN,
-    FULL_AMOUNT_LESS_THAN_MIN, PROJECT_FIELDS_CANT_BE_EMPTY
+    FULL_AMOUNT_LESS_THAN_MIN, FULL_AMOUNT_MIN,
+    PROJECT_FIELDS_CANT_BE_EMPTY, PROJECT_NAME_CANT_BE_NONE
 )
 
 
@@ -53,8 +53,6 @@ class CharityProjectUpdate(CharityProjectBase):
                 )
         return values
 
-    # TO DO: Валидацию для целых чисел больше нуля можно не писать:
-    # посмотреть в документации pydantic
     @validator('full_amount')
     def full_amount_must_be_greater_than_zero(cls, value: str):
         if value < FULL_AMOUNT_MIN:

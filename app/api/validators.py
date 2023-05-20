@@ -2,9 +2,9 @@ from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.consts import (
-    PROJECT_NAME_OCCUPIED, DUPLICATE_VALIDATION_ATTRIBUTE,
-    PROJECT_NOT_FOUND, PROJECT_CLOSED,
-    FULL_AMOUNT_INVALID, PROJECT_CANT_BE_DELETED
+    DUPLICATE_VALIDATION_ATTRIBUTE, FULL_AMOUNT_INVALID,
+    PROJECT_CANT_BE_DELETED, PROJECT_CLOSED,
+    PROJECT_NAME_OCCUPIED, PROJECT_NOT_FOUND
 )
 from app.crud.charity_project import charity_project_crud
 from app.models import CharityProject

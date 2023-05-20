@@ -1,22 +1,14 @@
 import asyncio
-# Импортируем модуль стандартной библиотеки для работы с ОС.
 import os
 from logging.config import fileConfig
 
-# Импортируем функцию для чтения файлов с переменными окружения
-# из библиотеки python-dotenv. Эта библиотека была установлена
-# вместе с uvicorn.
 from dotenv import load_dotenv
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from sqlalchemy import engine_from_config, pool
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from alembic import context
 from app.core.base import Base
 
-# Загрузим файл .env в переменные окружения.
-# Библиотека python-dotenv умеет находить файл в «вышестоящих» каталогах,
-# поэтому полный путь указывать необязательно.
 load_dotenv('.env')
 
 # this is the Alembic Config object, which provides
@@ -36,7 +28,6 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 
-# Присвоим переменной target_metadata объект класса MetaData из Base.
 target_metadata = Base.metadata
 
 
@@ -74,7 +65,6 @@ def do_run_migrations(connection):
     context.configure(
         connection=connection,
         target_metadata=target_metadata,
-        # Ещё один параметр.
         render_as_batch=True,
     )
 

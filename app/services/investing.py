@@ -1,16 +1,16 @@
 from datetime import datetime
-from typing import Union, Optional
+from typing import Optional, Union
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.charity_project import CRUDCharityProject
 from app.crud.donation import CRUDonation
-from app.models import Donation, CharityProject
+from app.models import CharityProject, Donation
 
 
 def update_attrs(
-    db_object: Union[CharityProject, Donation],
-    amount: Optional[int] = None
+        db_object: Union[CharityProject, Donation],
+        amount: Optional[int] = None
 ):
     if amount is not None:
         setattr(db_object, 'invested_amount', amount)
