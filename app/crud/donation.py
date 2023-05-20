@@ -4,11 +4,10 @@ from app.schemas.donation import DonationCreate
 
 
 class CRUDonation(
-    CRUDBase[
-        Donation, DonationCreate
-    ]
+    CRUDBase
 ):
     pass
 
 
 donation_crud = CRUDonation(Donation)
+# donation_crud = CRUDBase(Donation)
