@@ -5,6 +5,12 @@ from sqlalchemy import Boolean, Column, DateTime, Integer, CheckConstraint
 from app.core.consts import INVESTED_AMOUNT_DEFAULT
 from app.core.db import Base
 
+REPRESENTATION = (
+    'Дата создания - {create_date}, '
+    'Общая сумма - {full_amount}, '
+    'Инвестировано - {invested_amount}.'
+)
+
 
 class Investment(Base):
     __abstract__ = True
@@ -14,11 +20,10 @@ class Investment(Base):
             name='full_amount_is_positive'
         ),
         CheckConstraint(
-            'full_amount > invested_amount',
-            name='full_amount_gt_invested_amount'
+            'full_amount >= invested_amount',
+            name='full_amount_ge_invested_amount'
         )
     )
-
     full_amount = Column(
         Integer,
     )
@@ -42,8 +47,8 @@ class Investment(Base):
     )
 
     def __repr__(self):
-        return (
-            f'Дата создания - {self.create_date}, '
-            f'Общая сумма - {self.full_amount}, '
-            f'Инвестировано - {self.invested_amount}.'
+        return REPRESENTATION.format(
+            create_date=self.create_date,
+            full_amount=self.full_amount,
+            invested_amount=self.invested_amount,
         )

@@ -1,9 +1,13 @@
 from sqlalchemy import Column, ForeignKey, Integer, Text
 
+from app.core.consts import TABLE_NAME_DONATION
 from app.models.abstract import Investment
+
+REPRESENTATION = '{table_name}. {super}'
 
 
 class Donation(Investment):
+    __table_name__ = TABLE_NAME_DONATION
     user_id = Column(
         Integer,
         ForeignKey('user.id')
@@ -11,3 +15,9 @@ class Donation(Investment):
     comment = Column(
         Text,
     )
+
+    def __repr__(self):
+        return REPRESENTATION.format(
+            table_name=self.__table_name__,
+            super=super().__repr__(),
+        )
