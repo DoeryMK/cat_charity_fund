@@ -10,7 +10,7 @@ def add_invested_amount(
 ):
     investment.invested_amount += amount
     investment.fully_invested = (
-            investment.invested_amount == investment.full_amount
+        investment.invested_amount == investment.full_amount
     )
     if investment.fully_invested:
         investment.close_date = datetime.utcnow()
