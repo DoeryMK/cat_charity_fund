@@ -3,18 +3,20 @@ from typing import List
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.validators import (check_project_before_delete,
-                                check_project_before_edit,
-                                check_project_name_duplicate)
+from app.api.validators import (
+    check_project_before_delete, check_project_before_edit,
+    check_project_name_duplicate
+)
 from app.core.db import get_async_session
 from app.core.user import current_superuser
 from app.crud.base import CRUDBase
 from app.crud.charity_project import charity_project_crud
 from app.crud.donation import donation_crud
-from app.schemas.charity_project import (CharityProjectCreate,
-                                         CharityProjectDB,
-                                         CharityProjectUpdate)
-from app.services.investing import investing_process, new_investing_process
+from app.schemas.charity_project import (
+    CharityProjectCreate, CharityProjectDB,
+    CharityProjectUpdate
+)
+from app.services.investing import investing_process
 
 router = APIRouter()
 
@@ -25,9 +27,9 @@ router = APIRouter()
     response_model_exclude_none=True,
     dependencies=[Depends(current_superuser)],
 )
-async def new_create_new_charity_project(
-    charity_project: CharityProjectCreate,
-    session: AsyncSession = Depends(get_async_session),
+async def create_new_charity_project(
+        charity_project: CharityProjectCreate,
+        session: AsyncSession = Depends(get_async_session),
 ):
     """Только для суперюзеров."""
     await check_project_name_duplicate(
@@ -36,39 +38,18 @@ async def new_create_new_charity_project(
     new_charity_project = await charity_project_crud.create(
         charity_project, session, calculation=True
     )
-    opened_donations = await donation_crud.get_multi_ordered_by_create_date(
-        session
+    opened_donations = (
+        await donation_crud.get_multi_ordered_by_create_date(
+            session
+        )
     )
-    updated_objects = new_investing_process(
+    updated_objects = investing_process(
         new_charity_project, opened_donations
     )
-    await charity_project_crud.commit_all_after_calculation(
+    await CRUDBase.commit_all(
         updated_objects, session
     )
     return new_charity_project
-#
-#
-# @router.post(
-#     '/',
-#     response_model=CharityProjectDB,
-#     response_model_exclude_none=True,
-#     dependencies=[Depends(current_superuser)],
-# )
-# async def create_new_charity_project(
-#     charity_project: CharityProjectCreate,
-#     session: AsyncSession = Depends(get_async_session),
-# ):
-#     """Только для суперюзеров."""
-#     await check_project_name_duplicate(
-#         charity_project.name, session
-#     )
-#     new_charity_project = await charity_project_crud.create(
-#         charity_project, session
-#     )
-#     new_charity_project = await investing_process(
-#         new_charity_project, donation_crud, session
-#     )
-#     return new_charity_project
 
 
 @router.patch(

@@ -40,28 +40,12 @@ class CRUDBase(
         )
         return db_obj.scalars().first()
 
-    # Удалить метод в дальнейшем?
-    async def get_first_created(
-            self,
-            session: AsyncSession,
-    ) -> Optional[ModelType]:
-        project = await session.execute(
-            select(
-                self.model
-            ).where(
-                self.model.fully_invested == 0
-            ).order_by(
-                asc(self.model.create_date)
-            )
-        )
-        return project.scalars().first()
-
     async def get_by_attribute(
             self,
             attr_name: str,
             attr_value: str,
             session: AsyncSession,
-    ):
+    ) -> Optional[ModelType]:
         attr = getattr(self.model, attr_name)
         db_obj = await session.execute(
             select(
@@ -92,7 +76,7 @@ class CRUDBase(
     async def get_multi_ordered_by_create_date(
             self,
             session: AsyncSession,
-    ) -> Optional[ModelType]:
+    ) -> List[ModelType]:
         project = await session.execute(
             select(
                 self.model
@@ -149,8 +133,8 @@ class CRUDBase(
         await session.commit()
         return db_obj
 
-    async def commit_all_after_calculation(
-            self,
+    @staticmethod
+    async def commit_all(
             db_obj: List[ModelType],
             session: AsyncSession
     ):
@@ -158,4 +142,3 @@ class CRUDBase(
         await session.commit()
         for obj in db_obj:
             await session.refresh(obj)
-

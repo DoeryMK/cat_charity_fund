@@ -1,6 +1,9 @@
 from datetime import datetime
 
-from sqlalchemy import Boolean, Column, DateTime, Integer, CheckConstraint
+from sqlalchemy import (
+    Boolean, CheckConstraint, Column,
+    DateTime, Integer
+)
 
 from app.core.consts import INVESTED_AMOUNT_DEFAULT
 from app.core.db import Base

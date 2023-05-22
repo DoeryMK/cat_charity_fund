@@ -5,11 +5,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_async_session
 from app.core.user import current_superuser, current_user
+from app.crud.base import CRUDBase
 from app.crud.charity_project import charity_project_crud
 from app.crud.donation import donation_crud
 from app.models import User
-from app.schemas.donation import (DonationCreate, DonationFullDB,
-                                  DonationShortDB)
+from app.schemas.donation import (
+    DonationCreate, DonationFullDB,
+    DonationShortDB
+)
 from app.services.investing import investing_process
 
 router = APIRouter()
@@ -21,15 +24,23 @@ router = APIRouter()
     response_model_exclude_none=True,
 )
 async def create_new_donation(
-    donation: DonationCreate,
-    session: AsyncSession = Depends(get_async_session),
-    user: User = Depends(current_user)
+        donation: DonationCreate,
+        session: AsyncSession = Depends(get_async_session),
+        user: User = Depends(current_user)
 ):
     new_donation = await donation_crud.create(
-        donation, session, user
+        donation, session, user, calculation=True
     )
-    new_donation = await investing_process(
-        new_donation, charity_project_crud, session
+    opened_projects = (
+        await charity_project_crud.get_multi_ordered_by_create_date(
+            session
+        )
+    )
+    updated_objects = investing_process(
+        new_donation, opened_projects
+    )
+    await CRUDBase.commit_all(
+        updated_objects, session
     )
     return new_donation
 
@@ -41,7 +52,7 @@ async def create_new_donation(
     dependencies=[Depends(current_superuser)],
 )
 async def get_all_donations(
-    session: AsyncSession = Depends(get_async_session),
+        session: AsyncSession = Depends(get_async_session),
 ):
     """Только для суперюзеров."""
     all_donations = await donation_crud.get_multi(
