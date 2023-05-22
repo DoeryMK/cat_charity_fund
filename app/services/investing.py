@@ -1,11 +1,12 @@
 from datetime import datetime
-from typing import Optional, Union
+from typing import Optional, Union, List, Tuple
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.charity_project import CRUDCharityProject
 from app.crud.donation import CRUDonation
 from app.models import CharityProject, Donation
+from app.models.abstract import Investment
 
 
 def update_attrs(
@@ -57,3 +58,31 @@ async def investing_process(
     for obj in queue:
         await session.refresh(obj)
     return investment
+
+
+def close_investing(investment: Investment):
+    investment.invested_amount = investment.full_amount
+    investment.fully_invested = True
+    investment.close_date = datetime.utcnow()
+
+
+def new_investing_process(
+        target: Investment,
+        sources: List[Investment],
+) -> List[Investment]:
+    updated_objects = []
+    if not sources:
+        return list(target)
+    for source in sources:
+        delta = min(source.full_amount - source.invested_amount,
+                    target.full_amount - target.invested_amount)
+        source.invested_amount += delta
+        if source.invested_amount == source.full_amount:
+            close_investing(source)
+        updated_objects.append(source)
+        target.invested_amount += delta
+        if target.invested_amount == target.full_amount:
+            close_investing(target)
+            break
+    updated_objects.append(target)
+    return updated_objects

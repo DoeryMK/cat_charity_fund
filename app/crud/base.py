@@ -40,6 +40,7 @@ class CRUDBase(
         )
         return db_obj.scalars().first()
 
+    # Удалить метод в дальнейшем?
     async def get_first_created(
             self,
             session: AsyncSession,
@@ -88,19 +89,36 @@ class CRUDBase(
             db_objs = await session.execute(select(self.model))
         return db_objs.scalars().all()
 
+    async def get_multi_ordered_by_create_date(
+            self,
+            session: AsyncSession,
+    ) -> Optional[ModelType]:
+        project = await session.execute(
+            select(
+                self.model
+            ).where(
+                self.model.fully_invested == 0
+            ).order_by(
+                asc(self.model.create_date)
+            )
+        )
+        return project.scalars().all()
+
     async def create(
             self,
             obj_in: CreateSchemaType,
             session: AsyncSession,
             user: Optional[User] = None,
+            calculation: Optional[bool] = False,
     ) -> ModelType:
         obj_in_data = obj_in.dict()
         if user:
             obj_in_data['user_id'] = user.id
         db_obj = self.model(**obj_in_data)
         session.add(db_obj)
-        await session.commit()
-        await session.refresh(db_obj)
+        if not calculation:
+            await session.commit()
+            await session.refresh(db_obj)
         return db_obj
 
     async def update(
@@ -130,3 +148,14 @@ class CRUDBase(
         await session.delete(db_obj)
         await session.commit()
         return db_obj
+
+    async def commit_all_after_calculation(
+            self,
+            db_obj: List[ModelType],
+            session: AsyncSession
+    ):
+        session.add_all(db_obj)
+        await session.commit()
+        for obj in db_obj:
+            await session.refresh(obj)
+
