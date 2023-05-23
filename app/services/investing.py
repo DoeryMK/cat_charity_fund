@@ -20,7 +20,7 @@ def investing_process(
         for investment in [target, source]:
             investment.invested_amount += available_amount
             investment.fully_invested = (
-                    investment.invested_amount == investment.full_amount
+                investment.invested_amount == investment.full_amount
             )
             if investment.fully_invested:
                 investment.close_date = datetime.utcnow()
