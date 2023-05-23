@@ -77,7 +77,7 @@ class CRUDBase(
             self,
             session: AsyncSession,
     ) -> List[ModelType]:
-        project = await session.execute(
+        db_obj = await session.execute(
             select(
                 self.model
             ).where(
@@ -86,21 +86,21 @@ class CRUDBase(
                 asc(self.model.create_date)
             )
         )
-        return project.scalars().all()
+        return db_obj.scalars().all()
 
     async def create(
             self,
             obj_in: CreateSchemaType,
             session: AsyncSession,
             user: Optional[User] = None,
-            calculation: Optional[bool] = False,
+            pass_commit: bool = False,
     ) -> ModelType:
         obj_in_data = obj_in.dict()
         if user:
             obj_in_data['user_id'] = user.id
         db_obj = self.model(**obj_in_data)
         session.add(db_obj)
-        if not calculation:
+        if not pass_commit:
             await session.commit()
             await session.refresh(db_obj)
         return db_obj
@@ -132,13 +132,3 @@ class CRUDBase(
         await session.delete(db_obj)
         await session.commit()
         return db_obj
-
-    @staticmethod
-    async def commit_all(
-            db_obj: List[ModelType],
-            session: AsyncSession
-    ):
-        session.add_all(db_obj)
-        await session.commit()
-        for obj in db_obj:
-            await session.refresh(obj)

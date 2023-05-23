@@ -11,8 +11,10 @@ from app.core.db import Base
 REPRESENTATION = (
     'Дата создания - {create_date}, '
     'Общая сумма - {full_amount}, '
-    'Инвестировано - {invested_amount}.'
+    'Инвестировано - {invested_amount}, '
+    'Дата закрытия - {close_date}. '
 )
+REPRESENTATION_STR_LENGTH = 15
 
 
 class Investment(Base):
@@ -54,4 +56,5 @@ class Investment(Base):
             create_date=self.create_date,
             full_amount=self.full_amount,
             invested_amount=self.invested_amount,
+            close_date=self.close_date,
         )

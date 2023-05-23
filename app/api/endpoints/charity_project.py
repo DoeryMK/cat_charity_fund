@@ -9,7 +9,6 @@ from app.api.validators import (
 )
 from app.core.db import get_async_session
 from app.core.user import current_superuser
-from app.crud.base import CRUDBase
 from app.crud.charity_project import charity_project_crud
 from app.crud.donation import donation_crud
 from app.schemas.charity_project import (
@@ -36,19 +35,18 @@ async def create_new_charity_project(
         charity_project.name, session
     )
     new_charity_project = await charity_project_crud.create(
-        charity_project, session, calculation=True
+        charity_project, session, pass_commit=True
     )
-    opened_donations = (
-        await donation_crud.get_multi_ordered_by_create_date(
-            session
+    session.add_all(
+        investing_process(
+            new_charity_project,
+            await donation_crud.get_multi_ordered_by_create_date(
+                session
+            )
         )
     )
-    updated_objects = investing_process(
-        new_charity_project, opened_donations
-    )
-    await CRUDBase.commit_all(
-        updated_objects, session
-    )
+    await session.commit()
+    await session.refresh(new_charity_project)
     return new_charity_project
 
 

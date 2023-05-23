@@ -1,9 +1,11 @@
 from sqlalchemy import Column, String, Text
 
 from app.core.consts import PROJECT_NAME_LENGTH, TABLE_NAME_CHARITY_PROJECT
-from app.models.abstract import Investment
+from app.models.abstract import Investment, REPRESENTATION_STR_LENGTH
 
-REPRESENTATION = '{table_name}: {name}. {super}'
+REPRESENTATION = (
+    '{table_name}: {name}. {super}'
+)
 
 
 class CharityProject(Investment):
@@ -21,6 +23,6 @@ class CharityProject(Investment):
     def __repr__(self):
         return REPRESENTATION.format(
             table_name=self.__table_name__,
-            name=self.name,
+            name=self.name[:REPRESENTATION_STR_LENGTH],
             super=super().__repr__(),
         )
