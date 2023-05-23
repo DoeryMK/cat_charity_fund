@@ -8,7 +8,7 @@ def investing_process(
         target: Investment,
         sources: List[Investment],
 ) -> List[Investment]:
-    updated_objects = [target]
+    updated_objects = []
     if target.invested_amount is None:  # Костыль для тестов
         target.invested_amount = 0
     for source in sources:
