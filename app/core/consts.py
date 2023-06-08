@@ -15,6 +15,9 @@ PROJECT_NOT_FOUND = 'Проект не найден!'
 FULL_AMOUNT_INVALID = 'Нельзя установить требуемую сумму меньше уже вложенной.'
 FULL_AMOUNT_LESS_THAN_MIN = 'Требуемая сумма должна быть больше нуля'
 
-
 TABLE_NAME_DONATION = 'Пожертвование'
 TABLE_NAME_CHARITY_PROJECT = 'Благотворительный проект'
+
+FORMAT = "%Y/%m/%d %H:%M:%S"
+
+REPORT_URL = 'https://docs.google.com/spreadsheets/d/{spreadsheetid}'

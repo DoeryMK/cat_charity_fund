@@ -1,10 +1,13 @@
+from http import HTTPStatus
+
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.consts import (
-    DUPLICATE_VALIDATION_ATTRIBUTE, FULL_AMOUNT_INVALID,
-    PROJECT_CANT_BE_DELETED, PROJECT_CLOSED,
-    PROJECT_NAME_OCCUPIED, PROJECT_NOT_FOUND
+    DUPLICATE_VALIDATION_ATTRIBUTE,
+    FULL_AMOUNT_INVALID, PROJECT_CANT_BE_DELETED, PROJECT_CLOSED,
+    PROJECT_NAME_OCCUPIED, PROJECT_NOT_FOUND,
+
 )
 from app.crud.charity_project import charity_project_crud
 from app.models import CharityProject
@@ -20,7 +23,7 @@ async def check_project_name_duplicate(
     )
     if project:
         raise HTTPException(
-            status_code=400,
+            status_code=HTTPStatus.BAD_REQUEST,
             detail=PROJECT_NAME_OCCUPIED,
         )
 
@@ -34,7 +37,7 @@ async def check_project_exists(
     )
     if not project:
         raise HTTPException(
-            status_code=404,
+            status_code=HTTPStatus.NOT_FOUND,
             detail=PROJECT_NOT_FOUND,
         )
     return project
@@ -50,12 +53,12 @@ async def check_project_before_edit(
     )
     if charity_project.fully_invested:
         raise HTTPException(
-            status_code=400,
+            status_code=HTTPStatus.BAD_REQUEST,
             detail=PROJECT_CLOSED,
         )
     if (
-            object_in.full_amount and
-            object_in.full_amount < charity_project.invested_amount
+        object_in.full_amount and
+        object_in.full_amount < charity_project.invested_amount
     ):
         raise HTTPException(
             status_code=400,
@@ -77,12 +80,12 @@ async def check_project_before_delete(
     )
     if charity_project.invested_amount:
         raise HTTPException(
-            status_code=400,
+            status_code=HTTPStatus.BAD_REQUEST,
             detail=PROJECT_CANT_BE_DELETED,
         )
     if charity_project.fully_invested:
         raise HTTPException(
-            status_code=400,
+            status_code=HTTPStatus.BAD_REQUEST,
             detail=PROJECT_CANT_BE_DELETED,
         )
     return charity_project

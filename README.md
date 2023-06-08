@@ -2,19 +2,21 @@
 
 ## **Основная цель и описание проекта**
 Оптимизация работы фонда по сбору пожертвований на различные целевые проекты.
-
+Возможность формирования отчёта в гугл-таблице.
 
 ### **Используемые языки, технологии**
 Python3  
 FastAPI  
 SQLAlchemy  
-Alembic
+Alembic  
+Google API  
 
 Сервис реализован на [FastAPI](https://fastapi.tiangolo.com), 
 в качестве ORM используется [SQLAchemy](https://docs.sqlalchemy.org/en/14/index.html).
 Для настройки управления пользователями использована библиотека 
 [FastAPI Users](https://fastapi-users.github.io/fastapi-users/10.0/).
 Выполняется валидация данных и обработка ошибок.
+Для создания отчета используется [GoogleAPI](https://developers.google.cn/identity/protocols/oauth2/scopes?hl=ru#sheets).
 
 ### **Ключевые возможности:** 
 
@@ -28,6 +30,10 @@ Alembic
 Каждый пользователь может сделать пожертвование. 
 Пожертвования вносятся в фонд, а не в конкретный проект. 
 
+***Создание отчета по закрытым проектам.***   
+В отчете отображаются закрытые проекты, отсортированные по 
+скорости сбора средств. В ответе передается ссылка на созданную электронную таблицу.
+
 ***Алгоритм распределения пожертвований.***   
 Каждое полученное пожертвование автоматически добавляется в первый открытый проект, 
 который ещё не набрал нужную сумму. Если пожертвование больше нужной суммы или 
@@ -40,6 +46,7 @@ Alembic
 Любой пользователь может видеть список всех проектов.
 Зарегистрированные пользователи могут отправлять пожертвования и просматривать 
 список своих пожертвований.
+
 
 ## **Запуск проекта**
 Выполните следующие команды в терминале:
@@ -99,12 +106,25 @@ uvicorn app.main:app --reload
 ### _Описание шаблона .env_
 Необходимо указать переменные окружения в следующем формате:
 
-APP_TITLE = *название приложения*  
-APP_DESCRIPTION = *описание проекта*    
-DATABASE_URI = *подключение БД, например: sqlite+aiosqlite:///./fastapi.db*   
-SECRET = *уникальный секретный ключ*  
-FIRST_SUPERUSER_EMAIL = *email для автоматического создания суперпользователя*  
-FIRST_SUPERUSER_PASSWORD = *пароль для автоматического создания суперпользователя*  
+APP_TITLE=*название приложения*  
+APP_DESCRIPTION=*описание проекта*    
+DATABASE_URI=*подключение БД, например: sqlite+aiosqlite:///./fastapi.db*   
+SECRET=*уникальный секретный ключ*  
+FIRST_SUPERUSER_EMAIL=*email для автоматического создания суперпользователя*  
+FIRST_SUPERUSER_PASSWORD=*пароль для автоматического создания суперпользователя*  
+EMAIL=*admin@admin.com*
+
+#### Далее идут данные из json-файла с ключом к вашему сервисному аккаунту Google Cloud: ####
+TYPE=*service_account*,
+PROJECT_ID=*fluid-dreamer-343515*,
+PRIVATE_KEY_ID=*47169bcc4c4......8a331d4b769eb1ff*,
+PRIVATE_KEY=*-----BEGIN PRIVATE KEY-----\n....bTxwcv\n-----END PRIVATE KEY-----\n*,
+CLIENT_EMAIL=*test-praktikum@fluid-dreamer-343515.iam.gserviceaccount.com*,
+CLIENT_ID=*114239083367454348646*,
+AUTH_URI=*https://accounts.google.com/o/oauth2/auth*,
+TOKEN_URI=*https://oauth2.googleapis.com/token*,
+AUTH_PROVIDER_X509_CERT_URL=*https://www.googleapis.com/oauth2/v1/certs*,
+CLIENT_X509_CERT_URL=*https://www.googleapis.com/robot/v1/metadata/x509/test-praktikum%40fluid-dreamer-343515.iam.gserviceaccount.com*
 
 
 ## **Работа со спецификацией**
